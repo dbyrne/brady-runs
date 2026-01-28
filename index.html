@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brady's Running Year 2025</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script type="module" crossorigin src="/assets/index-CZ89C8ue.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DkHiFiks.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Hero Section -->
+    <section id="hero" class="section hero">
+      <div class="hero-content">
+        <h1 class="hero-title">
+          <span class="glow">Brady's</span> Running Year
+        </h1>
+        <p class="hero-subtitle">January 2025 - January 2026</p>
+        <div class="hero-stats"></div>
+      </div>
+      <div class="hero-background"></div>
+    </section>
+
+    <!-- Calendar Heatmap -->
+    <section id="calendar" class="section">
+      <h2 class="section-title">Activity Calendar</h2>
+      <div class="calendar-container"></div>
+    </section>
+
+    <!-- Route Map -->
+    <section id="map" class="section">
+      <h2 class="section-title">Running Footprint</h2>
+      <p class="section-subtitle">All 177 routes overlaid</p>
+      <div id="route-map"></div>
+    </section>
+
+    <!-- Charts -->
+    <section id="charts" class="section">
+      <h2 class="section-title">Progress Over Time</h2>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3>Weekly Mileage</h3>
+          <canvas id="weekly-chart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Pace Trend</h3>
+          <canvas id="pace-chart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Heart Rate Zones</h3>
+          <canvas id="hr-chart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Time of Day -->
+    <section id="timeofday" class="section">
+      <h2 class="section-title">When Do You Run?</h2>
+      <p class="section-subtitle">Run start times throughout the year</p>
+      <div class="timeofday-container"></div>
+    </section>
+
+    <!-- Personal Records -->
+    <section id="records" class="section">
+      <h2 class="section-title">Personal Records</h2>
+      <div class="records-grid"></div>
+    </section>
+
+    <!-- Fun Comparisons -->
+    <section id="comparisons" class="section">
+      <h2 class="section-title">In Perspective</h2>
+      <div class="comparisons-grid"></div>
+    </section>
+
+    <!-- Monthly Breakdown -->
+    <section id="monthly" class="section">
+      <h2 class="section-title">Month by Month</h2>
+      <div class="monthly-grid"></div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Built with love to celebrate an amazing year of running</p>
+    </footer>
+  </div>
+
+</body>
+</html>
