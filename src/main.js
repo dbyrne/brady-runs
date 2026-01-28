@@ -12,10 +12,11 @@ import { initMonthly } from './components/monthly.js';
 async function init() {
   try {
     // Load all data files in parallel
+    const base = import.meta.env.BASE_URL;
     const [summaryRes, activitiesRes, routesRes] = await Promise.all([
-      fetch('/data/summary.json'),
-      fetch('/data/activities.json'),
-      fetch('/data/routes.json')
+      fetch(`${base}data/summary.json`),
+      fetch(`${base}data/activities.json`),
+      fetch(`${base}data/routes.json`)
     ]);
 
     const summary = await summaryRes.json();
