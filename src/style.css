@@ -317,12 +317,29 @@ body {
 .chart-card h3 {
   font-size: 1rem;
   color: var(--text-secondary);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   font-weight: 500;
 }
 
+.chart-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  margin-bottom: 1rem;
+}
+
 .chart-card canvas {
+  height: 250px;
   max-height: 250px;
+}
+
+.chart-card-large {
+  grid-column: 1 / -1;
+}
+
+.chart-card-large canvas {
+  height: 350px;
+  max-height: 350px;
 }
 
 /* Time of Day */

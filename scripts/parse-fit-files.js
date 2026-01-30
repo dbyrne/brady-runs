@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.join(__dirname, '..');
 const workoutDir = path.join(rootDir, 'workout_files');
-const dataDir = path.join(rootDir, 'data');
+const dataDir = path.join(rootDir, 'public', 'data');
 
 // Ensure data directory exists
 if (!fs.existsSync(dataDir)) {
@@ -201,6 +201,81 @@ for (const result of results) {
 activities.sort((a, b) => a.date.localeCompare(b.date));
 routes.sort((a, b) => a.date.localeCompare(b.date));
 
+// Calculate rTSS for each activity
+// Threshold pace estimated from fastest sustained efforts (~9:30 min/mile)
+const THRESHOLD_PACE = 9.5; // min/mile
+
+function calculateRTSS(activity) {
+  if (!activity.avgPace || activity.avgPace <= 0 || activity.distance < 0.5) {
+    return 0;
+  }
+  // Intensity Factor = Threshold Pace / Actual Pace
+  // (faster pace = lower number = higher IF)
+  const intensityFactor = Math.min(THRESHOLD_PACE / activity.avgPace, 1.5);
+  const durationHours = activity.duration / 3600;
+  // rTSS = duration(hrs) * IF^2 * 100
+  return durationHours * intensityFactor * intensityFactor * 100;
+}
+
+// Calculate CTL/ATL/TSB using exponential decay
+// CTL uses 42-day time constant, ATL uses 7-day
+function calculateTrainingLoad(sortedActivities) {
+  const CTL_DAYS = 42;
+  const ATL_DAYS = 7;
+
+  // Build daily TSS map (sum TSS if multiple runs per day)
+  const dailyTSS = {};
+  for (const activity of sortedActivities) {
+    activity.tss = Math.round(calculateRTSS(activity) * 10) / 10;
+    dailyTSS[activity.date] = (dailyTSS[activity.date] || 0) + activity.tss;
+  }
+
+  // Get date range
+  const startDate = new Date(sortedActivities[0].date);
+  const endDate = new Date(sortedActivities[sortedActivities.length - 1].date);
+
+  // Calculate daily CTL/ATL/TSB for each day in range
+  let ctl = 0, atl = 0;
+  const trainingLoad = [];
+
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    const dateStr = d.toISOString().split('T')[0];
+    const tss = dailyTSS[dateStr] || 0;
+
+    // Exponential moving average formula
+    ctl = ctl + (tss - ctl) * (1 - Math.exp(-1 / CTL_DAYS));
+    atl = atl + (tss - atl) * (1 - Math.exp(-1 / ATL_DAYS));
+    const tsb = ctl - atl;
+
+    trainingLoad.push({
+      date: dateStr,
+      tss: Math.round(tss * 10) / 10,
+      ctl: Math.round(ctl * 10) / 10,
+      atl: Math.round(atl * 10) / 10,
+      tsb: Math.round(tsb * 10) / 10
+    });
+  }
+
+  // Assign CTL/ATL/TSB to each activity
+  const loadByDate = {};
+  for (const load of trainingLoad) {
+    loadByDate[load.date] = load;
+  }
+  for (const activity of sortedActivities) {
+    const load = loadByDate[activity.date];
+    if (load) {
+      activity.ctl = load.ctl;
+      activity.atl = load.atl;
+      activity.tsb = load.tsb;
+    }
+  }
+
+  return trainingLoad;
+}
+
+// Calculate training load metrics
+const trainingLoad = calculateTrainingLoad(activities);
+
 // Calculate weekly stats
 const weeklyMileage = {};
 const monthlyStats = {};
@@ -320,6 +395,7 @@ const summary = {
   monthlyStats,
   hrZones: totalHrZones,
   hourlyDistribution,
+  trainingLoad,
   dateRange: {
     start: activities[0]?.date || '2025-01-01',
     end: activities[activities.length - 1]?.date || '2026-01-27'

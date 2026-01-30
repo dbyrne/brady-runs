@@ -5,6 +5,7 @@ export function initCharts(summary, activities) {
   createWeeklyChart(summary.weeklyMileage);
   createPaceChart(activities);
   createHrChart(summary.hrZones);
+  createTrainingLoadChart(summary.trainingLoad);
 }
 
 function createWeeklyChart(weeklyMileage) {
@@ -199,6 +200,78 @@ function createHrChart(hrZones) {
           callbacks: {
             label: (ctx) => `${ctx.label}: ${ctx.raw}%`
           }
+        }
+      }
+    }
+  });
+}
+
+function createTrainingLoadChart(trainingLoad) {
+  const ctx = document.getElementById('training-load-chart');
+  if (!ctx || !trainingLoad) return;
+
+  // Sample data weekly for cleaner display
+  const weeklyData = trainingLoad.filter((_, i) => i % 7 === 0 || i === trainingLoad.length - 1);
+
+  const labels = weeklyData.map(d => {
+    const date = new Date(d.date);
+    return `${date.getMonth() + 1}/${date.getDate()}`;
+  });
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'CTL (Fitness)',
+          data: weeklyData.map(d => d.ctl),
+          borderColor: 'rgba(59, 130, 246, 1)',
+          backgroundColor: 'rgba(59, 130, 246, 0.15)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 0
+        },
+        {
+          label: 'ATL (Fatigue)',
+          data: weeklyData.map(d => d.atl),
+          borderColor: 'rgba(236, 72, 153, 1)',
+          backgroundColor: 'rgba(236, 72, 153, 0.1)',
+          borderWidth: 2,
+          fill: false,
+          tension: 0.4,
+          pointRadius: 0
+        },
+        {
+          label: 'TSB (Form)',
+          data: weeklyData.map(d => d.tsb),
+          borderColor: 'rgba(251, 191, 36, 1)',
+          backgroundColor: 'rgba(251, 191, 36, 0.1)',
+          borderWidth: 2,
+          fill: false,
+          tension: 0.4,
+          pointRadius: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#a0a0b0' } },
+        tooltip: {
+          backgroundColor: '#1a1a24',
+          callbacks: {
+            label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.toFixed(1)}`
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#a0a0b0' }, grid: { display: false } },
+        y: {
+          ticks: { color: '#a0a0b0' },
+          grid: { color: 'rgba(255,255,255,0.05)' }
         }
       }
     }
